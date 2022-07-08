@@ -3,19 +3,17 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-
-import { LeafletModule } from '@asymmetrik/ngx-leaflet';
+import { TrackCalcService } from './services/track-calc.service';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    LeafletModule,
   ],
-  providers: [],
+  providers: [TrackCalcService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
