@@ -16,4 +16,5 @@ export type ShopPoint = {
   // additional
   nearestShops: ShopPointAndDistance[],
   distance: number, // to the center
+
 }

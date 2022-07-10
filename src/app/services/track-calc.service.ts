@@ -6,6 +6,12 @@ import { distrCenter } from './DistrCenter';
 import { ShopPoint } from './ShopPoint';
 import { ShopPointAndDistance } from './ShopPointAndDistance';
 import { shopPoints } from './ShopPoints';
+import { getNearestShops, squares } from './Square';
+
+if (squares) {
+  console.log('ok');
+  console.dir(squares);
+}
 
 @Injectable({
   providedIn: 'root',
@@ -16,7 +22,7 @@ export class TrackCalcService {
   calcDistances() {
     console.time("calcDistances");
     for (const shop of shopPoints) {
-      shop.nearestShops = this.calcNearestShops(shop, shopPoints);
+      shop.nearestShops = this.calcNearestShops(shop);
     }
     console.timeEnd("calcDistances");
 
@@ -27,25 +33,8 @@ export class TrackCalcService {
 
   calcNearestShops(
     shop: ShopPoint,
-    shopPoints: ShopPoint[]
   ): ShopPointAndDistance[] {
-    const result: ShopPointAndDistance[] = [];
-
-    for (const shopTmp of shopPoints) {
-      if (shopTmp.id === shop.id) {
-        continue;
-      }
-
-      const dist = geolib.getDistance(
-        { latitude: shop.lat, longitude: shop.lng },
-        { latitude: shopTmp.lat, longitude: shopTmp.lng }
-      );
-
-      if (result.length < 10) {
-        result.push({ point: shopTmp, dist: dist });
-      }
-    }
-
+    const result: ShopPointAndDistance[] = getNearestShops(shop.lat, shop.lng, shop.id);
     return result;
   }
 

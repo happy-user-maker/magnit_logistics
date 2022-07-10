@@ -5,6 +5,7 @@ import { latLng, tileLayer } from 'leaflet';
 import * as L from 'leaflet';
 import { shopPoints } from './services/ShopPoints';
 import { TrackCalcService } from './services/track-calc.service';
+import { forAllSquares, getPoint, Square } from './services/Square';
 
 @Component({
   selector: 'app-root',
@@ -15,7 +16,11 @@ export class AppComponent implements OnInit {
   title = 'magnit_logistics';
   options = {
     layers: [
-      tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 15, attribution: 'magnit' })
+      tileLayer(
+        'http://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',
+        //'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        { maxZoom: 15, attribution: 'magnit' }
+      )
     ],
     zoom: 11,
     center: latLng(51.6683, 39.1919)
@@ -37,40 +42,37 @@ export class AppComponent implements OnInit {
     }).bindPopup(`${distrCenter.lat}, ${distrCenter.lng}`);
     dc.addTo(this.map);
 
-    const data = filterData(shopPoints);
+    this.trackCalcService.calcDistances();
+    //const data = filterData(shopPoints);
 
-    for (const point of data) {
-      const marker = L.circleMarker([point.lat, point.lon], {
+    for (const point of shopPoints) {
+      const marker = L.circleMarker([point.lat, point.lng], {
         color: '#ffffff00',
         fillColor: '#5555ff',
-        fillOpacity: 0.5,
+        fillOpacity: 0.6,
         radius: 6,
       }).addTo(this.map);
 
-      marker.bindPopup(`${point.lat}, ${point.lon}`);
+      marker.bindPopup(`${point.lat}, ${point.lng} - ${point.nearestShops?.length > 0 ? point.nearestShops[0].dist : 0}`);
     }
 
-    this.trackCalcService.calcDistances()
-  }
-}
-
-function filterData(data: any) {
-  const result: any = [];
-
-  for (const d of data) {
-    addDataPointGeo(d, result);
+    this.drawSquares();
   }
 
-  return result;
-}
 
-function addDataPointGeo(d: any, result: any) {
-  const pos = { lat: d.lat, lon: d.lng };
+  drawSquares() {
+    forAllSquares((indY: number, indX: number, sq: Square) =>{
+      const point = getPoint(indY, indX);
 
-  if (pos) {
-    result.push({
-      lat: pos.lat,
-      lon: pos.lon,
+      const marker = L.circleMarker([point.lat, point.lon], {
+        color: '#ffffff',
+        fillColor: '#000000',
+        fillOpacity: 1.0,
+        radius: 3,
+      }).addTo(this.map);
+
+      marker.bindPopup(`${point.lat}, ${point.lon} ${sq.shops.length}`);
+
     });
   }
 }
